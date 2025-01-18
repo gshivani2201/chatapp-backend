@@ -1,6 +1,4 @@
 import express from "express";
-import path from "path"
-import { fileURLToPath } from 'url';
 
 // 3rd party packages
 import dotenv from "dotenv";
@@ -59,9 +57,6 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: corsOptions,
 });
-// Get the current directory path using `import.meta.url`
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 app.set("io", io);
 
@@ -159,14 +154,6 @@ io.on("connection", (socket) => {
 });
 
 app.use(errorMiddleware);
-
-// Serve static files from the 'dist' folder
-app.use(express.static(path.join(__dirname, 'dist')));
-
-// For all other requests, send back 'index.html'
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-});
 
 server.listen(port, () => {
   console.log(`Sever is running on port ${port} in ${envMode} mode`);
