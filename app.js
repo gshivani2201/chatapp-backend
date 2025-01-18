@@ -1,4 +1,6 @@
 import express from "express";
+import path from "path"
+import { fileURLToPath } from 'url';
 
 // 3rd party packages
 import dotenv from "dotenv";
@@ -57,6 +59,9 @@ const server = createServer(app);
 const io = new Server(server, {
   cors: corsOptions,
 });
+// Get the current directory path using `import.meta.url`
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 app.set("io", io);
 
