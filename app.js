@@ -155,6 +155,14 @@ io.on("connection", (socket) => {
 
 app.use(errorMiddleware);
 
+// Serve static files from the 'dist' folder
+app.use(express.static(path.join(__dirname, 'dist')));
+
+// For all other requests, send back 'index.html'
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
 server.listen(port, () => {
   console.log(`Sever is running on port ${port} in ${envMode} mode`);
 });
