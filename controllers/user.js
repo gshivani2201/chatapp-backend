@@ -142,38 +142,39 @@ const acceptFriendRequest = TryCatch(async (req, res, next) => {
   if (request.receiver._id.toString() !== req.user.toString())
     return next(new ErrorHandler("You are not authorized to accept this", 401));
 
-  if (accept) {
-    const members = [request.sender._id, request.receiver._id];
-
-    await Promise.all([
-      Chat.create({
-        members,
-        name: `${request.sender.name} - ${request.receiver.name}`,
-      }),
-      request.deleteOne(),
-    ]);
-
-    emitEvent(req, REFETCH_CHATS, members);
-
-    return res.status(200).json({
-      success: true,
-      message: "Request acccepted successfully",
-      senderId: request.sender._id,
-    });
-  } else {
+  if (!accept) {
     await request.deleteOne();
 
     return res.status(200).json({
       success: true,
-      message: "Friend request rejected",
+      message: "Friend Request Rejected",
     });
   }
+
+  const members = [request.sender._id, request.receiver._id];
+
+  await Promise.all([
+    Chat.create({
+      members,
+      name: `${request.sender.name}-${request.receiver.name}`,
+    }),
+    request.deleteOne(),
+  ]);
+
+  emitEvent(req, REFETCH_CHATS, members);
+
+  return res.status(200).json({
+    success: true,
+    message: "Friend Request Accepted",
+    senderId: request.sender._id,
+  });
 });
 
 const getMyNotifications = TryCatch(async (req, res) => {
-  const requests = await Request.find({
-    receiver: req.user,
-  }).populate("sender", "name avatar");
+  const requests = await Request.find({ receiver: req.user }).populate(
+    "sender",
+    "name avatar"
+  );
 
   const allRequests = requests.map(({ _id, sender }) => ({
     _id,
@@ -191,7 +192,7 @@ const getMyNotifications = TryCatch(async (req, res) => {
 });
 
 const getMyFriends = TryCatch(async (req, res) => {
-  const { chatId } = req.query;
+  const chatId = req.query.chatId;
 
   const chats = await Chat.find({
     members: req.user,
@@ -222,7 +223,7 @@ const getMyFriends = TryCatch(async (req, res) => {
   } else {
     return res.status(200).json({
       success: true,
-      friends: friends,
+      friends,
     });
   }
 });

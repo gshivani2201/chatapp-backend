@@ -51,7 +51,7 @@ const getAdminData = TryCatch(async (req, res, next) => {
 });
 
 const allUsers = TryCatch(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find({});
 
   const transformedUsers = await Promise.all(
     users.map(async ({ name, username, avatar, _id }) => {
@@ -72,7 +72,7 @@ const allUsers = TryCatch(async (req, res) => {
   );
 
   return res.status(200).json({
-    success: true,
+    status: "success",
     users: transformedUsers,
   });
 });
@@ -87,19 +87,17 @@ const allChats = TryCatch(async (req, res) => {
       const totalMessages = await Message.countDocuments({ chat: _id });
 
       return {
-        members,
         _id,
         groupChat,
         name,
-        creator,
-        avatar: members.slice(0, 3).map(({ avatar }) => avatar.url),
+        avatar: members.slice(0, 3).map((member) => member.avatar.url),
         members: members.map(({ _id, name, avatar }) => ({
           _id,
           name,
           avatar: avatar.url,
         })),
         creator: {
-          name: creator?.name || "",
+          name: creator?.name || "None",
           avatar: creator?.avatar.url || "",
         },
         totalMembers: members.length,
@@ -109,7 +107,7 @@ const allChats = TryCatch(async (req, res) => {
   );
 
   return res.status(200).json({
-    success: true,
+    status: "success",
     chats: transformedChats,
   });
 });
@@ -120,7 +118,7 @@ const allMessages = TryCatch(async (req, res) => {
     .populate("chat", "groupChat");
 
   const transformMessages = messages.map(
-    ({ _id, attachments, content, createdAt, chat, sender }) => ({
+    ({ content, attachments, _id, sender, createdAt, chat }) => ({
       _id,
       attachments,
       content,
