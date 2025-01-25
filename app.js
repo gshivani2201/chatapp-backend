@@ -134,7 +134,7 @@ io.on("connection", (socket) => {
     onlineUsers.add(userId.toString());
 
     const membersSocket = getSockets(members);
-
+  
     io.to(membersSocket).emit(ONLINE_USERS, Array.from(onlineUsers));
   });
 
@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
 app.use(errorMiddleware);
 
 server.listen(port, () => {
-  console.log(`Sever is running on port ${port} in ${envMode} mode`);
+  console.log(`Server is running on port ${port} in ${envMode} Mode`);
 });
 
 export { envMode, adminSecretKey, userSocketIDs };
